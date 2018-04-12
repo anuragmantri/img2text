@@ -19,4 +19,4 @@ bazel-bin/im2txt/train \
   --inception_checkpoint_file="${INCEPTION_CHECKPOINT}" \
   --train_dir="${MODEL_DIR}/train" \
   --train_inception=false \
-  --number_of_steps=8360
+  --number_of_steps=1600

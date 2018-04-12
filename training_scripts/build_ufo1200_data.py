@@ -6,6 +6,8 @@ from collections import Counter
 from collections import namedtuple
 from datetime import datetime
 from PIL import Image
+import json
+import urllib
 
 import json
 import os.path
@@ -18,8 +20,8 @@ import nltk.tokenize
 import numpy as np
 import tensorflow as tf
 
-tf.flags.DEFINE_string("flicker8k_text_dir", "",
-                       "Flicker8k unprocessed text directory.")
+tf.flags.DEFINE_string("UFO1200_text_dir", "",
+                       "UFO1200 unprocessed text directory.")
 tf.flags.DEFINE_string("train_image_dir", "",
                        "Training image directory.")
 tf.flags.DEFINE_string("train_captions_file_dir", "",
@@ -356,29 +358,29 @@ def _load_and_process_metadata(captions_file, image_dir):
 
 
 def _generate_annotations():
-    FLICKR_TOKEN_PATH = FLAGS.flicker8k_text_dir
-    FLICKR_IMAGES_PATH = FLAGS.train_image_dir
-    FLICKR_ANNOTATIONS_SAVE_PATH = os.path.join(FLAGS.train_captions_file_dir, FLAGS.train_captions_file)
+    UFO1200_TOKEN_PATH = FLAGS.UFO1200_text_dir
+    UFO1200_IMAGES_PATH = FLAGS.train_image_dir
+    UFO1200_ANNOTATIONS_SAVE_PATH = os.path.join(FLAGS.train_captions_file_dir, FLAGS.train_captions_file)
 
-    print(FLICKR_TOKEN_PATH)
-    print(FLICKR_IMAGES_PATH)
-    print(FLICKR_ANNOTATIONS_SAVE_PATH)
+    print(UFO1200_TOKEN_PATH)
+    print(UFO1200_IMAGES_PATH)
+    print(UFO1200_ANNOTATIONS_SAVE_PATH)
 
     def _load_caption_dict():
-        flicker_tokens = open(FLICKR_TOKEN_PATH)
+        UFO1200_tokens = open(UFO1200_TOKEN_PATH)
         caption_dict = dict()
 
-        for line in flicker_tokens:
+        for line in UFO1200_tokens:
             cap_break_index = line.index('#') + 2
             _caption = re.sub(r'[^\w\s]', '', line[cap_break_index:])
             caption = ' '.join(_caption.split()).lower()
-            jpg_index = line.index('.jpg')
-            file_name = line[0:jpg_index] + '.jpg'
+            png_index = line.index('.png')
+            file_name = line[0:png_index] + '.png'
             if not (file_name in caption_dict):
                 caption_dict[file_name] = []
             caption_dict[file_name].append(caption)
 
-        flicker_tokens.close()
+        UFO1200_tokens.close()
         print(caption_dict)
         return caption_dict
 
@@ -390,7 +392,7 @@ def _generate_annotations():
     image_id, caption_id, not_found = 0, 0, 0
     images, captions = [], []
     for file_name in caption_dict.keys():
-        file_path = FLICKR_IMAGES_PATH + "/" + file_name
+        file_path = UFO1200_IMAGES_PATH + "/" + file_name
         if os.path.exists(file_path):
             with Image.open(file_path) as image:
                 width, height = image.size
@@ -427,10 +429,13 @@ def _generate_annotations():
     data_set['annotations'] = captions
     data_set['images'] = images
 
-    data_set_file = open(FLICKR_ANNOTATIONS_SAVE_PATH, 'w')
+    data_set_file = open(UFO1200_ANNOTATIONS_SAVE_PATH, 'w')
     json.dump(data_set, data_set_file)
     data_set_file.close()
     print('ANNOTATIONS SUCCESSFULLY GENERATED')
+
+
+
 
 
 def main(unused_argv):
